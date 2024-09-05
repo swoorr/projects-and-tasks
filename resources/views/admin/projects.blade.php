@@ -178,8 +178,8 @@
             var projectDescription = $(this).closest('tr').find('td:eq(1)').text();
 
             $('#editProjectId').val(projectId);
-            $('#editProjectName').val(projectName);
-            $('#editProjectDescription').val(projectDescription);
+            $('#editProjectName').val(projectName.trim());
+            $('#editProjectDescription').val(projectDescription.trim());
         });
 
         $('#submitEditProject').click(function () {

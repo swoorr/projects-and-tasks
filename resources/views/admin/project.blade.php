@@ -45,7 +45,7 @@
                         <th scope="col">#</th>
                         <th scope="col">Task Name</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Due Date</th>
+                        <th scope="col">Updated At</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -63,7 +63,7 @@
                                     <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>Done</option>
                                 </select>
                             </td>
-                            <td class="align-middle">2023-06-30</td>
+                            <td class="align-middle">{{ $task->updated_at->format('d-m-Y H:i') }}</td>
                             <td class="align-middle">
                                 <script>
                                     var taskDetails{{ $task->id }} = {
