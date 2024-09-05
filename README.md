@@ -15,7 +15,6 @@
 ## Setup
 1. Clone repository
 2. `composer install`
-3. `npm install`
 4. Copy `.env.example` to `.env`
 5. `php artisan key:generate`
 6. Configure database in `.env`
