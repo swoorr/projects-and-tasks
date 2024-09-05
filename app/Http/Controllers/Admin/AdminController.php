@@ -34,6 +34,11 @@ class AdminController extends Controller
     public function project($id)
     {
         $project = Projects::find($id);
+        if(!$project) {
+            return redirect()->route('admin.projects');
+        }
+
+
         $tasks = Tasks::where('project_id', $id)->get();
         return view('admin.project', compact('project', 'tasks'));
     }
