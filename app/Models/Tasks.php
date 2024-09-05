@@ -15,4 +15,10 @@ class Tasks extends Model
     {
         return $this->belongsTo(Projects::class);
     }
+
+    // enum ['todo', 'in-progress', 'done']
+    protected $casts = [
+        'status' => 'string',
+    ];
+
 }

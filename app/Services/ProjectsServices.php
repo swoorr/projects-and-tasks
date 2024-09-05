@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Projects;
+use App\Models\Tasks;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -14,9 +15,21 @@ class ProjectsServices
      *
      * @return Collection
      */
-    public function getAllProjects(): Collection
+    public function getAllProjects(array $filter = null): Collection
     {
-        return Projects::all();
+        return Projects::when($filter, function ($query, $filter) {
+            return $query->where('name', 'like', '%' . $filter['projectName'] . '%');
+        })
+        ->get()->filter(function ($project) use ($filter) {
+            if(!isset($filter['projectStatus'])){
+                return true;
+            }
+
+            if($filter['projectStatus'] === 'done'){
+                return $project->status === 'done';
+            }
+            return $project->status === 'in-progress';
+        });
     }
 
     /**
@@ -90,6 +103,27 @@ class ProjectsServices
             return false;
         }
         return $project->delete();
+    }
+
+    /**
+     * Get all tasks.
+     *
+     * @return Collection
+     */
+    public function createTask(array $data): Tasks
+    {
+        $validator = Validator::make($data, [
+            'name' => 'string|max:255',
+            'description' => 'nullable|string',
+            'project_id' => 'exists:projects,id',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return Tasks::create($validator->validated());
+
     }
 }
 
