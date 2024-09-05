@@ -23,7 +23,7 @@
         </div>
         <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div class="text-gray-600 mb-3 sm:mb-0 bg-gray-2 fw-bold py-2 px-12 rounded">
-                In Progress Tasks:
+                Not Completed Tasks:
                     {{ $project->tasks->whereIn('status', ['todo', 'in-progress'])->count() }}
             </div>
             <div class="space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
@@ -38,6 +38,10 @@
             <button type="button" class="btn !bg-orange-5 text-white btn-sm" data-bs-toggle="modal"
                 data-bs-target="#newTaskModal">New Task</button>
         </div>
+        <script>
+            var taskDetails = {}
+        </script>
+
         <div class="card-body">
             <table class="table table-striped table-hover">
                 <thead>
@@ -50,6 +54,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if($tasks->count() > 0)
                     @foreach($tasks as $index => $task)
                         <tr class="items-center" data-task-id="{{ $task->id }}">
                             <th scope="" class="">{{ $index + 1 }}</th>
@@ -66,7 +71,7 @@
                             <td class="align-middle">{{ $task->updated_at->format('d-m-Y H:i') }}</td>
                             <td class="align-middle">
                                 <script>
-                                    var taskDetails{{ $task->id }} = {
+                                    taskDetails[{{ $task->id }}] = {
                                         description: '{{ $task->description }}',
                                     };
                                 </script>
@@ -78,6 +83,11 @@
                             </td>
                         </tr>
                     @endforeach
+                    @else
+                    <tr>
+                        <td colspan="5" class="text-center">No tasks found</td>
+                    </tr>
+                    @endif
                     <!-- Add more rows for additional tasks -->
                 </tbody>
             </table>
@@ -167,7 +177,15 @@
 
 <script>
     $(document).ready(function () {
-        $('#submitNewTask').click(function () {
+        const pageTableRefresh = () => {
+            $.get(location.href, function(data) {
+                const $htmlTable = $(data).find('table');
+                $('table').replaceWith($htmlTable);
+            });
+        }
+
+
+        $(document).on('click', '#submitNewTask', function () {
             var formData = $('#newTaskForm').serialize();
             $.ajax({
                 url: '{{ route("tasks.store") }}',
@@ -177,7 +195,7 @@
                     $('#newTaskModal').modal('hide');
                     window.apiInterceptor({ responseJSON: response });
                     // Refresh the page to show the new task
-                    location.reload();
+                    pageTableRefresh();
                 },
                 error: function (xhr) {
                     window.apiInterceptor(xhr);
@@ -185,7 +203,7 @@
             });
         });
 
-        $('.delete-task').click(function () {
+        $(document).on('click', '.delete-task', function () {
             var taskId = $(this).data('task-id');
             if (confirm('Are you sure you want to delete this task?')) {
                 $.ajax({
@@ -197,6 +215,7 @@
                     success: function (response) {
                         $('#task-row-' + taskId).remove();
                         window.apiInterceptor({ responseJSON: response });
+                        pageTableRefresh();
                     },
                     error: function (xhr) {
                         window.apiInterceptor(xhr);
@@ -205,10 +224,10 @@
             }
         });
 
-        $('.edit-task').click(function () {
+        $(document).on('click', '.edit-task', function () {
             var taskId = $(this).data('task-id');
             var taskName = $(this).closest('tr').find('td:eq(0)').text();
-            var taskDescription = taskDetails{{ $task->id }}.description;
+            var taskDescription = taskDetails[taskId].description;
             var taskStatus = $(this).closest('tr').find('td:eq(2)').text();
 
             $('#editTaskId').val(taskId);
@@ -218,7 +237,7 @@
         });
 
         // Edit Task Modal when button is clicked
-        $('[data-bs-target="#editTaskModal"]').click(function () {
+        $(document).on('click', '[data-bs-target="#editTaskModal"]', function () {
             var taskId = $(this).closest('tr').find('.status-select').data('task-id');
             var taskName = $(this).closest('tr').find('td:eq(0)').text();
             var taskStatus = $(this).closest('tr').find('.status-select').val();
@@ -226,12 +245,12 @@
             $('#editTaskId').val(taskId);
             $('#editTaskName').val(taskName);
             $('#editTaskStatus').val(taskStatus);
-            $('#editTaskDescription').val(taskDetails{{ $task->id }}.description);
+            $('#editTaskDescription').val(taskDetails[taskId].description);
 
         });
 
         // Edit Task Modal when form save
-        $('#submitEditTask').click(function () {
+        $(document).on('click', '#submitEditTask', function () {
             var formData = $('#editTaskForm').serialize();
             var taskId = $('#editTaskId').val();
             $.ajax({
@@ -241,12 +260,7 @@
                 success: function (response) {
                     $('#editTaskModal').modal('hide');
                     window.apiInterceptor({ responseJSON: response });
-
-                    // Update the table row with new data
-                    var row = $('[data-task-id="' + taskId + '"]').closest('tr');
-                    row.find('td:eq(0)').text($('#editTaskName').val());
-                    row.find('.status-select').val($('#editTaskStatus').val());
-                    taskDetails{{ $task->id }}.description = $('#editTaskDescription').val();
+                    pageTableRefresh();
                 },
                 error: function (xhr) {
                     window.apiInterceptor(xhr);
@@ -254,7 +268,7 @@
             });
         });
 
-        $('.status-select').change(function () {
+        $(document).on('change', '.status-select', function () {
             var taskId = $(this).data('task-id');
             var status = $(this).val();
             $.ajax({
@@ -270,8 +284,6 @@
             });
         });
 
-
-        // Remove the duplicate 'open edittaskmodal' event listener
     });
 </script>
 

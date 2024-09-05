@@ -18,6 +18,10 @@ class Projects extends Model
      */
     public function getStatusAttribute()
     {
+        if ($this->tasks()->count() == 0) {
+            return 'todo';
+        }
+
         return $this->tasks()->where('status', 'in-progress')
         ->orWhere('status', 'todo')
         ->count() > 0 ? 'in-progress' : 'done';

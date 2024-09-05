@@ -31,6 +31,9 @@
         a {
             text-decoration: none;
         }
+        body {
+            display: none;
+        }
     </style>
 
 
@@ -72,6 +75,12 @@
             }
         }
 
+
+        $(document).ready(function () {
+            setTimeout(() => {
+                $('body').show();
+            }, 500);
+        });
 
 
     </script>

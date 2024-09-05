@@ -141,18 +141,28 @@
 
 <script>
     $(document).ready(function () {
-        $('#submitNewProject').click(function () {
+
+        const pageTableRefresh = () => {
+            $.get(location.href, function(data) {
+                const $htmlTable = $(data).find('table');
+                $('table').replaceWith($htmlTable);
+            });
+        }
+
+        $(document).on('click', '#submitNewProject', function () {
             var formData = $('#newProjectForm').serialize();
             $.ajax({
                 url: '{{ route("projects.store") }}',
                 type: 'POST',
                 data: formData,
             }).always((data) => {
-                window.apiInterceptor(data);
+                window.apiInterceptor({ responseJSON: data });
+                pageTableRefresh();
+                $('#newProjectModal').modal('hide');
             })
         });
 
-        $('.delete-project').click(function () {
+        $(document).on('click', '.delete-project', function () {
             var projectId = $(this).data('project-id');
             if (confirm('Are you sure you want to delete this project?')) {
                 $.ajax({
@@ -164,6 +174,7 @@
                     success: function (response) {
                         $('#project-row-' + projectId).remove();
                         window.apiInterceptor({ responseJSON: response });
+                        pageTableRefresh();
                     },
                     error: function (xhr) {
                         window.apiInterceptor(xhr);
@@ -172,7 +183,7 @@
             }
         });
 
-        $('.edit-project').click(function () {
+        $(document).on('click', '.edit-project', function () {
             var projectId = $(this).data('project-id');
             var projectName = $(this).closest('tr').find('td:eq(0)').text();
             var projectDescription = $(this).closest('tr').find('td:eq(1)').text();
@@ -182,7 +193,7 @@
             $('#editProjectDescription').val(projectDescription.trim());
         });
 
-        $('#submitEditProject').click(function () {
+        $(document).on('click', '#submitEditProject', function () {
             var formData = $('#editProjectForm').serialize();
             var projectId = $('#editProjectId').val();
             $.ajax({
@@ -192,10 +203,7 @@
                 success: function (response) {
                     $('#editProjectModal').modal('hide');
                     window.apiInterceptor({ responseJSON: response });
-                    // Update the table row with new data
-                    var row = $('#project-row-' + projectId);
-                    row.find('td:eq(0)').text($('#editProjectName').val());
-                    row.find('td:eq(1)').text($('#editProjectDescription').val());
+                    pageTableRefresh();
                 },
                 error: function (xhr) {
                     window.apiInterceptor(xhr);
