@@ -21,6 +21,9 @@
 7. `php artisan migrate`
 8. `php artisan serve`
 
+## Docker Install and Run 
+1. use docker-compose and run `docker-compose up` command
+
 ## Usage
 - Register/login
 - Create project
