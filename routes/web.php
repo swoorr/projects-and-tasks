@@ -14,7 +14,7 @@ Route::post('/login', 'App\Http\Controllers\GuestController@authenticate')->name
 Route::prefix('admin')->group(function () {
     Route::get('/', 'App\Http\Controllers\Admin\AdminController@home')->name('admin.home');
     Route::get('/projects', 'App\Http\Controllers\Admin\AdminController@projects')->name('admin.projects');
-});
+})->middleware('auth:web');
 
 // create admin user
 Route::get('/create-admin', function () {
@@ -25,7 +25,12 @@ Route::get('/create-admin', function () {
     $user->save();
 });
 
+
+/**
+ * API Routes
+ * authenticate based on web guard
+ */
 Route::prefix('api')->group(function () {
     Route::apiResource('projects', 'App\Http\Controllers\ProjectsController');
     Route::apiResource('tasks', 'App\Http\Controllers\TasksController');
-});
+})->middleware('auth:web');
