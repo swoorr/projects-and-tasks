@@ -31,4 +31,10 @@ class GuestController extends Controller
 
         return redirect()->route('admin.home');
     }
+
+    public function logout()
+    {
+        auth()->logout();
+        return redirect()->route('login');
+    }
 }

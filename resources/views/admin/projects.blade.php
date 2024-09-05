@@ -14,7 +14,8 @@
             <div class="mb-3 row !-mt-4 bg-gray-2 p-4 !-mx-4 gap-y-2">
                 <form id="projectFilterForm" class="row gap-y-2 items-center">
                     <div class="col-md-6">
-                        <input type="text" class="form-control" id="projectNameFilter" name="projectName" placeholder="Filter by project name...">
+                        <input type="text" class="form-control" id="projectNameFilter" name="projectName"
+                            placeholder="Filter by project name...">
                     </div>
                     <div class="col-md-3">
                         <select class="form-select" id="projectStatusFilter" name="projectStatus">
@@ -24,7 +25,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn !bg-orange-5 text-white btn-md w-full" id="filterProject">Filter</button>
+                        <button type="submit" class="btn !bg-orange-5 text-white btn-md w-full"
+                            id="filterProject">Filter</button>
                     </div>
                 </form>
 
@@ -53,13 +55,17 @@
                         <tr id="project-row-{{ $project->id }}">
                             <th class="align-middle">{{ $index + 1 }}</th>
                             <td class="align-middle">
-                                <a href="{{ route('admin.projects.show', $project->id) }}" class="text-orange-5 !underline ">{{ $project->name }}</a>
+                                <a href="{{ route('admin.projects.show', $project->id) }}"
+                                    class="text-orange-5 !underline ">{{ $project->name }}</a>
                             </td>
                             <td class="align-middle">{{ $project->description }}</td>
                             <td class="align-middle">{{ $project->status }}</td>
                             <td class="align-middle row gap-2">
-                                <button class="col-md-6 btn btn-sm !bg-orange-5 text-white edit-project" data-project-id="{{ $project->id }}" data-bs-toggle="modal" data-bs-target="#editProjectModal">Edit</button>
-                                <button class="col-md-6 btn btn-sm !bg-red-5 text-white delete-project" data-project-id="{{ $project->id }}">Delete</button>
+                                <button class="col-md-6 btn btn-sm !bg-orange-5 text-white edit-project"
+                                    data-project-id="{{ $project->id }}" data-bs-toggle="modal"
+                                    data-bs-target="#editProjectModal">Edit</button>
+                                <button class="col-md-6 btn btn-sm !bg-red-5 text-white delete-project"
+                                    data-project-id="{{ $project->id }}">Delete</button>
                             </td>
                         </tr>
                     @endforeach
@@ -143,7 +149,7 @@
     $(document).ready(function () {
 
         const pageTableRefresh = () => {
-            $.get(location.href, function(data) {
+            $.get(location.href, function (data) {
                 const $htmlTable = $(data).find('table');
                 $('table').replaceWith($htmlTable);
             });
@@ -156,9 +162,11 @@
                 type: 'POST',
                 data: formData,
             }).always((data) => {
-                window.apiInterceptor({ responseJSON: data });
-                pageTableRefresh();
-                $('#newProjectModal').modal('hide');
+                window.apiInterceptor({ responseJSON: data.responseJSON || data });
+                if (data?.success) {
+                    pageTableRefresh();
+                    $('#newProjectModal').modal('hide');
+                }
             })
         });
 

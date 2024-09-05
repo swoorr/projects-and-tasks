@@ -10,6 +10,8 @@ Route::withoutMiddleware([Authenticate::class])->group(function () {
 
     Route::get('/login', 'App\Http\Controllers\GuestController@login')->name('login');
     Route::post('/login', 'App\Http\Controllers\GuestController@authenticate')->name('authenticate');
+
+    Route::get('/logout', 'App\Http\Controllers\GuestController@logout')->name('logout');
 });
 
 // Route prefix admin
